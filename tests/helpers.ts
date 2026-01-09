@@ -1,7 +1,3 @@
-/**
- * Test helpers and mock data generators for unit tests
- */
-
 export interface MockProduct {
   productId: string;
   productName: string;
@@ -25,9 +21,6 @@ export interface MockOrder {
   orderNumber?: string;
 }
 
-/**
- * Create a mock product with customizable properties
- */
 export function createMockProduct(overrides: Partial<MockProduct> = {}): MockProduct {
   return {
     productId: '12345',
@@ -35,16 +28,11 @@ export function createMockProduct(overrides: Partial<MockProduct> = {}): MockPro
     brand: 'Test Brand',
     price: 50.0,
     quantity: 1,
-    categories: [
-      { id: 1, name: 'Test Category', level: 1 }
-    ],
+    categories: [{ id: 1, name: 'Test Category', level: 1 }],
     ...overrides
   };
 }
 
-/**
- * Create a mock order detail with products
- */
 export function createMockOrderDetail(
   orderId: string,
   products: MockProduct[],
@@ -59,21 +47,15 @@ export function createMockOrderDetail(
   };
 }
 
-/**
- * Create a mock order (minimal info for history)
- */
 export function createMockOrder(id: string): MockOrder {
   return { id, orderNumber: id };
 }
 
-/**
- * Create products with specific categories (for meal suggestions)
- */
 export function createBreakfastProducts(): MockProduct[] {
   return [
     createMockProduct({
       productId: '1001',
-      productName: 'Miil Trvanlivé mléko 1,5%',
+      productName: 'Trvanlivé mléko 1,5%',
       brand: 'Miil',
       price: 21.90,
       categories: [{ id: 10, name: 'Mléko a mléčné nápoje', level: 1 }]
@@ -87,7 +69,7 @@ export function createBreakfastProducts(): MockProduct[] {
     }),
     createMockProduct({
       productId: '1003',
-      productName: 'Madeta Máslo 250g',
+      productName: 'Máslo 250g',
       brand: 'Madeta',
       price: 45.50,
       categories: [{ id: 12, name: 'Máslo a tuky', level: 1 }]
@@ -133,13 +115,10 @@ export function createSnackProducts(): MockProduct[] {
   ];
 }
 
-/**
- * Create mock orders with repeated products (for frequency testing)
- */
 export function createOrdersWithRepeatedProducts(): MockOrderDetail[] {
   const milk = createMockProduct({
     productId: '1001',
-    productName: 'Miil Mléko',
+    productName: 'Mléko',
     brand: 'Miil',
     price: 21.90,
     categories: [{ id: 10, name: 'Mléko a mléčné nápoje', level: 1 }]
@@ -162,13 +141,9 @@ export function createOrdersWithRepeatedProducts(): MockOrderDetail[] {
   });
 
   return [
-    // Order 1: milk + bread
     createMockOrderDetail('order1', [milk, bread], '2025-01-01'),
-    // Order 2: milk + bread + cheese
     createMockOrderDetail('order2', [milk, bread, cheese], '2025-01-05'),
-    // Order 3: milk + cheese
     createMockOrderDetail('order3', [milk, cheese], '2025-01-10'),
-    // Order 4: milk only
     createMockOrderDetail('order4', [milk], '2025-01-15'),
   ];
 }

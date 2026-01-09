@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { Product, SearchResult, CartContent, RohlikCredentials, RohlikAPIResponse, AccountData } from './types.js';
 
 const BASE_URL = process.env.ROHLIK_BASE_URL || 'https://www.rohlik.cz';

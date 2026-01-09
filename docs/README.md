@@ -1,506 +1,323 @@
-# 📚 Rohlik MCP - User Guide
+# Rohlik CLI - User Guide
 
-Welcome! This comprehensive guide will teach you everything about using Rohlik MCP.
+Welcome! This guide covers all features of the Rohlik CLI.
 
-> **📘 Note:** For installation instructions, see the [main README](../README.md).
+> This is a fork of [rohlik-mcp](https://github.com/tomaspavlin/rohlik-mcp) converted from an MCP server into a standalone CLI with a [SKILL.md](../SKILL.md) for agentic use.
 
-## 📖 Table of Contents
+> For installation, see the [main README](../README.md).
+
+## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [What Can You Do?](#what-can-you-do)
-3. [Smart Shopping Features](#smart-shopping-features)
-4. [All Available Tools](#all-available-tools)
-5. [Example Conversations](#example-conversations)
-6. [Tips & Best Practices](#tips--best-practices)
-7. [Troubleshooting](#troubleshooting)
+2. [Commands Overview](#commands-overview)
+3. [Smart Shopping](#smart-shopping)
+4. [Examples](#examples)
+5. [Tips & Best Practices](#tips--best-practices)
 
 ---
 
 ## Getting Started
 
-Once you have Rohlik MCP installed and configured (see [main README](../README.md)), start with:
+After installation, verify the CLI works:
 
-```
-"What can I do with Rohlik MCP?"
-```
-
-This will show you an interactive guide with all possibilities!
-
----
-
-## What Can You Do?
-
-### 🤖 1. Smart Shopping (Data-Driven)
-
-The MCP provides tools that analyze your order history to give personalized suggestions. Claude uses these tools to help you shop more efficiently:
-
-#### Meal-Based Shopping
-```
-"Add breakfast items I typically order"
-"Show me lunch suggestions for this week"
-"I need dinner ingredients - suggest what I usually buy"
-"Add my usual snacks to the cart"
+```bash
+bun run rohlik --help
 ```
 
-**How it works:**
-- Analyzes your past orders (default: last 20)
-- Finds products in relevant categories for that meal type
-- Prioritizes items you order frequently
-- Returns ready-to-order suggestions
+Set your credentials:
 
-**Available meal types:**
-- 🍳 **breakfast** - Bread, milk, cereals, fruits, jam, eggs
-- 🍽️ **lunch** - Meat, vegetables, pasta, rice, sauces
-- 🍴 **dinner** - Meat, fish, vegetables, sides
-- 🍿 **snack** - Sweets, fruits, nuts, yogurt
-- 🧁 **baking** - Flour, sugar, chocolate, butter
-- 🥤 **drinks** - Coffee, tea, juices, water, alcohol
-- 🥗 **healthy** - Bio, vegan, gluten-free products
-
-#### Frequency Analysis
-```
-"Show my 20 most frequently purchased items"
-"What do I buy most often?"
-"What dairy products do I usually buy?"
-"Show my top bakery purchases"
+```bash
+export ROHLIK_USERNAME="your-email@example.com"
+export ROHLIK_PASSWORD="your-password"
 ```
 
-**Features:**
-- Overall top items across all categories
-- Per-category breakdown (e.g., top dairy, top bakery)
-- Frequency statistics and average prices
-- Last purchase dates
+Try your first command:
 
-### 🛒 2. Regular Shopping
-
-#### Product Search
-```
-"Find organic milk"
-"Search for gluten-free bread"
-"Show me all chocolates"
-```
-
-#### Cart Management
-```
-"What's in my cart?"
-"Add product #1441840 to my cart"
-"Remove item from my cart"
-"Add 5 liters of milk to cart"
-```
-
-#### Shopping Lists
-```
-"Show my shopping list"
-"Add items from my shopping list #123"
-```
-
-### 📦 3. Order Management
-
-#### Order History
-```
-"Show my last 5 orders"
-"What did I order last week?"
-"Show details of order #1110717593"
-```
-
-**Information provided:**
-- Order date and time
-- Total price
-- All products with quantities
-- Order status
-
-#### Upcoming Orders
-```
-"When is my next delivery?"
-"Show my scheduled orders"
-```
-
-### 🚚 4. Delivery Planning
-
-#### Delivery Slots
-```
-"What delivery slots are available tomorrow?"
-"Show the cheapest delivery slots this week"
-"When can I get delivery today?"
-```
-
-**Shows:**
-- Available time windows
-- Prices (standard, express, eco)
-- Capacity status (available, limited, sold out)
-- Express delivery options
-
-#### Delivery Info
-```
-"Where will my next delivery be?"
-"What's my delivery address?"
-"When is the earliest delivery?"
-```
-
-### 💰 5. Account & Savings
-
-#### Premium Membership
-```
-"How much have I saved with Premium?"
-"What are my Premium benefits?"
-"When does my Premium expire?"
-```
-
-**Tracks:**
-- Total savings (delivery + discounts)
-- Remaining benefits (free express, small orders)
-- Membership type and renewal date
-
-#### Reusable Bags
-```
-"How many reusable bags do I have?"
-"Check my environmental impact"
-```
-
-#### Announcements
-```
-"Show current announcements"
-"Any important updates?"
+```bash
+bun run rohlik search "milk"
 ```
 
 ---
 
-## Smart Shopping Features
+## Commands Overview
 
-### How Meal Suggestions Work
+### Search Products
 
-The MCP uses algorithmic analysis (not AI) to process your shopping data. Here's how:
+```bash
+bun run rohlik search <query> [options]
 
-**Step 1: Category Mapping**
-
-Each meal type is mapped to relevant Rohlik categories:
-
-```
-breakfast → Pekárna, Mléko, Müsli, Džemy, Ovoce, Vejce
-lunch → Maso, Zelenina, Přílohy, Těstoviny, Rýže
-dinner → Maso, Ryby, Zelenina, Přílohy, Omáčky
-...
+Options:
+  --limit <n>      Max results (default: 10)
+  --favourites     Only show favourites
+  --json           Output as JSON
 ```
 
-**Step 2: Historical Analysis**
-
-The MCP fetches your order history (configurable, default 20 orders) and:
-- Extracts all products
-- Filters by relevant categories
-- Counts purchase frequency
-- Calculates average prices
-
-**Step 3: Smart Ranking**
-
-Products are ranked by:
-- Frequency (how often you order them)
-- Recency (when you last ordered)
-- Quantity (how many you typically buy)
-
-**Step 4: Personalized Results**
-
-Returns your most relevant items with:
-- Product name and brand
-- Purchase frequency
-- Average price
-- Product ID (for easy reordering)
-
-### Example: Breakfast Suggestions
-
-```
-You: "Show me breakfast suggestions"
-
-Claude calls: get_meal_suggestions(meal_type: "breakfast")
-
-Output:
-🍳 BREAKFAST SUGGESTIONS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📈 Analyzed 20 orders • Found 45 relevant items
-
-1. Miil Trvanlivé mléko 1,5% (Miil) • Mléko
-   📊 Ordered 15× • 💰 21.90 Kč • 🆔 1441840
-
-2. Rohlík Pšenične rohlíky • Pekárna
-   📊 Ordered 12× • 💰 8.90 Kč • 🆔 712345
-
-3. Madeta Máslo 250g (Madeta) • Máslo
-   📊 Ordered 8× • 💰 45.50 Kč • 🆔 789456
-...
+Examples:
+```bash
+bun run rohlik search "organic milk"
+bun run rohlik search "bread" --limit 20
+bun run rohlik search "eggs" --favourites --json
 ```
 
-### Combining Features
+### Cart Management
 
-You can combine smart suggestions with actions:
+```bash
+# View cart
+bun run rohlik cart
 
+# Add product
+bun run rohlik cart add <product-id> [--quantity <n>]
+
+# Remove item
+bun run rohlik cart remove <cart-item-id>
 ```
-"Show breakfast suggestions and add top 5 to cart"
-"Find my usual dairy products and add them"
-"I need ingredients for the week - suggest breakfast, lunch, and dinner items"
+
+Examples:
+```bash
+bun run rohlik cart                      # View cart
+bun run rohlik cart add 1441840          # Add product
+bun run rohlik cart add 1441840 --quantity 3
+bun run rohlik cart remove ABC123        # Remove by cart item ID
+```
+
+### Order History
+
+```bash
+# List orders
+bun run rohlik orders [--limit <n>]
+
+# Order details
+bun run rohlik order <order-id>
+```
+
+Examples:
+```bash
+bun run rohlik orders               # Last 10 orders
+bun run rohlik orders --limit 20
+bun run rohlik order 1110717593     # Specific order details
+```
+
+### Delivery
+
+```bash
+# Delivery info + upcoming orders
+bun run rohlik delivery
+
+# Available slots
+bun run rohlik slots
+```
+
+### Account
+
+```bash
+bun run rohlik account
+```
+
+Shows premium status, reusable bags, and announcements.
+
+### Smart Shopping
+
+```bash
+# Frequently purchased items
+bun run rohlik frequent [options]
+  --orders <n>      Orders to analyze (default: 5)
+  --top <n>         Top items count (default: 10)
+  --categories      Show per-category breakdown
+
+# Meal suggestions
+bun run rohlik meals <type> [options]
+  --count <n>       Items to suggest (default: 10)
+  --orders <n>      Orders to analyze (default: 5)
+```
+
+Meal types: `breakfast`, `lunch`, `dinner`, `snack`, `baking`, `drinks`, `healthy`
+
+Examples:
+```bash
+bun run rohlik frequent --orders 10 --top 20
+bun run rohlik frequent --categories
+bun run rohlik meals breakfast
+bun run rohlik meals dinner --count 15
 ```
 
 ---
 
-## All Available Tools
+## Smart Shopping
 
-### 🤖 Smart Shopping (3 tools)
+### How It Works
 
-| Tool | Description | Example Usage |
-|------|-------------|---------------|
-| `get_meal_suggestions` | Get items for specific meal types | "Show dinner suggestions" |
-| `get_frequent_items` | Analyze purchase history | "What do I buy most?" |
-| `get_shopping_scenarios` | Interactive help guide | "What can I do?" |
+The CLI analyzes your order history to provide personalized suggestions.
 
-### 🛒 Core Shopping (5 tools)
+**Frequency Analysis:**
+1. Fetches your recent orders
+2. Counts how often you buy each product
+3. Groups by category
+4. Ranks by purchase frequency
 
-| Tool | Description | Example Usage |
-|------|-------------|---------------|
-| `search_products` | Find products by name | "Search for milk" |
-| `add_to_cart` | Add products to cart | "Add product #123" |
-| `get_cart_content` | View current cart | "What's in my cart?" |
-| `remove_from_cart` | Remove items | "Remove item #456" |
-| `get_shopping_list` | View shopping lists | "Show shopping list" |
+**Meal Suggestions:**
+1. Maps meal types to relevant product categories
+2. Filters your purchases by those categories
+3. Returns items you frequently buy for that meal
 
-### 📦 Order Management (3 tools)
+### Meal Category Mappings
 
-| Tool | Description | Example Usage |
-|------|-------------|---------------|
-| `get_order_history` | View past orders | "Show last 5 orders" |
-| `get_order_detail` | Get order details | "Details of order #123" |
-| `get_upcoming_orders` | See scheduled orders | "Next delivery?" |
-
-### 🚚 Delivery (2 tools)
-
-| Tool | Description | Example Usage |
-|------|-------------|---------------|
-| `get_delivery_info` | Current delivery info | "Delivery address?" |
-| `get_delivery_slots` | Available time slots | "Slots for tomorrow?" |
-
-### 👤 Account (3 tools)
-
-| Tool | Description | Example Usage |
-|------|-------------|---------------|
-| `get_account_data` | Full account overview | "Show account info" |
-| `get_premium_info` | Premium membership | "Premium savings?" |
-| `get_reusable_bags_info` | Bag tracking | "How many bags?" |
-
-**Total: 16 tools**
+| Meal Type | Categories |
+|-----------|------------|
+| breakfast | Bread, milk, cereals, fruits, jam, eggs, butter |
+| lunch | Meat, vegetables, pasta, rice, sauces, soup |
+| dinner | Meat, fish, vegetables, potatoes, sauces |
+| snack | Sweets, fruits, nuts, yogurt, chips |
+| baking | Flour, sugar, chocolate, butter, eggs |
+| drinks | Coffee, tea, juices, water, beer, wine |
+| healthy | Bio, vegan, gluten-free, vegetables, fruits |
 
 ---
 
-## Example Conversations
+## Examples
 
-### Conversation 1: Morning Routine
+### Morning Routine
 
-```
-You: "I need to order groceries for breakfast this week"
+```bash
+# See what breakfast items you usually buy
+bun run rohlik meals breakfast
 
-Claude: "I'll help you order breakfast groceries. Let me check what you
-        typically buy for breakfast."
-
-[Calls get_meal_suggestions(meal_type: "breakfast", items_count: 15)]
-
-Claude: "Based on your order history, here are your typical breakfast items:
-
-        1. Miil Mléko 1,5% - you order this 15× in 20 orders
-        2. Rohlík Pšenične rohlíky - 12× in 20 orders
-        3. Madeta Máslo - 8× in 20 orders
-        ... (12 more items)
-
-        Would you like me to add these to your cart?"
-
-You: "Yes, add the top 8 items"
-
-Claude: [Calls add_to_cart with product IDs]
-        "Done! I've added 8 breakfast items to your cart for a total
-        of approximately 245 Kč. Would you like to see your cart?"
+# Get the data as JSON for scripting
+bun run rohlik meals breakfast --json
 ```
 
-### Conversation 2: Weekly Planning
+### Weekly Planning
 
-```
-You: "Help me plan my grocery shopping for the week"
+```bash
+# Check your most purchased items
+bun run rohlik frequent --top 20
 
-Claude: "I'll help you plan! Let me get suggestions for different meal types."
-
-[Calls get_meal_suggestions for breakfast, lunch, dinner]
-
-Claude: "Here's your weekly meal plan based on what you typically order:
-
-        BREAKFAST (7 items):
-        • Milk, bread, butter, jam, yogurt, fruit, cereals
-
-        LUNCH (10 items):
-        • Chicken, vegetables, pasta, rice, sauces, soup
-
-        DINNER (10 items):
-        • Meat, fish, potatoes, vegetables, sauces
-
-        Would you like me to add all of these, or would you prefer to
-        customize the selection?"
+# Get suggestions for different meals
+bun run rohlik meals breakfast
+bun run rohlik meals lunch
+bun run rohlik meals dinner
 ```
 
-### Conversation 3: Quick Reorder
+### Quick Reorder
 
-```
-You: "I forgot to order last week, just add my usual items"
+```bash
+# Find your top 10 items
+bun run rohlik frequent --top 10 --json | jq '.topItems[].productId'
 
-Claude: "I'll get your most frequently purchased items."
-
-[Calls get_frequent_items(top_items: 20)]
-
-Claude: "Here are your top 20 most ordered items. Should I add them
-        all to your cart, or would you like to review first?"
-
-You: "Add them all"
-
-Claude: [Calls add_to_cart]
-        "Added 20 items to your cart! Total: ~850 Kč"
+# Add them one by one
+bun run rohlik cart add 1441840
+bun run rohlik cart add 712345
 ```
 
-### Conversation 4: Discovery
+### Scripting with JSON
 
-```
-You: "What's special about dairy products I buy?"
+```bash
+# Search and extract first product ID
+PRODUCT_ID=$(bun run rohlik search "milk" --json | jq '.[0].id')
+bun run rohlik cart add $PRODUCT_ID
 
-Claude: [Calls get_frequent_items(show_categories: true)]
-
-Claude: "Here's your dairy purchasing pattern:
-
-        📦 MLÉKO A MLÉČNÉ NÁPOJE (45 orders total):
-        1. Miil Mléko 1,5% - 15× orders
-        2. Madeta Eidam 30% - 10× orders
-        3. Danone Jogurt - 8× orders
-
-        You're very consistent with milk (every order!) and cheese
-        (every other order). Want me to add your favorites?"
+# Get cart total
+bun run rohlik cart --json | jq '.total_price'
 ```
 
 ---
 
 ## Tips & Best Practices
 
-### 💡 General Tips
+### Performance
 
-1. **Be natural**: Talk to Claude like a human
-   - ✅ "I need breakfast items"
-   - ❌ "Execute get_meal_suggestions breakfast"
+| Setting | Fast | Accurate |
+|---------|------|----------|
+| Orders to analyze | 5 | 15-20 |
+| Top items | 5-10 | 20+ |
+| Categories | disabled | enabled |
 
-2. **Combine requests**: Claude can do multiple things at once
-   - ✅ "Show breakfast suggestions and add top 5 to cart"
-
-3. **Be specific when needed**:
-   - ✅ "Add gluten-free breakfast items I usually order"
-   - ✅ "Show my top 10 items from the last 30 orders"
-
-4. **Use the help**: Ask "What can I do?" anytime you're stuck
-
-### 🎯 Smart Shopping Tips
-
-1. **Adjust analysis depth**:
-   ```
-   "Analyze my last 50 orders" - More data, slower
-   "Analyze my last 10 orders" - Less data, faster
-   ```
-
-2. **Filter by preferences**:
-   ```
-   "Show healthy breakfast suggestions"
-   "Suggest budget-friendly lunch items"
-   "Only organic products for dinner"
-   ```
-
-3. **Combine meal types**:
-   ```
-   "I need both breakfast and snacks for the week"
-   ```
-
-4. **Review before adding**:
-   ```
-   "Show me suggestions first" (review)
-   "Add breakfast items" (immediate)
-   ```
-
-### 📊 Performance Tips
-
-1. **Default settings are optimized**:
-   - 20 orders analysis ≈ 10-15 seconds
-   - 10 items per request
-
-2. **For faster results**:
-   - Analyze fewer orders (10-15)
-   - Request fewer items (5-8)
-   - Disable category breakdown
-
-3. **For more accuracy**:
-   - Analyze more orders (30-50)
-   - Include category breakdown
-   - Review suggestions before adding
-
-### 🔒 Privacy & Security
-
-1. **Credentials**: Stored locally in Claude Desktop config
-2. **No data storage**: MCP doesn't store your order history
-3. **Session-based**: Each request creates a fresh session
-4. **API calls**: Direct to Rohlik servers (no intermediaries)
-
----
-
-## Advanced Usage
-
-### Custom Meal Categories
-
-You can ask for specific category combinations:
-
-```
-"Show me items from dairy and bakery categories"
-"What do I usually buy from vegetables and fruits?"
+For faster results:
+```bash
+bun run rohlik frequent --orders 5 --top 5
 ```
 
-### Budget Planning
-
-```
-"Show my cheapest frequent breakfast items"
-"What's my average breakfast cost?"
-"Find budget-friendly dinner suggestions"
+For more accurate results:
+```bash
+bun run rohlik frequent --orders 15 --top 20 --categories
 ```
 
-### Dietary Preferences
+### JSON Output
 
-```
-"Show breakfast suggestions - only bio products"
-"Suggest gluten-free lunch items I usually order"
-"Healthy snack suggestions - vegan only"
+Add `--json` to any command for machine-readable output:
+
+```bash
+bun run rohlik search "milk" --json
+bun run rohlik cart --json
+bun run rohlik frequent --json
+bun run rohlik meals breakfast --json
 ```
 
-### Time-Based Analysis
+Use with `jq` for data extraction:
 
+```bash
+# Get product IDs
+bun run rohlik search "milk" --json | jq '.[].id'
+
+# Get cart total
+bun run rohlik cart --json | jq '.total_price'
+
+# Get top product names
+bun run rohlik frequent --json | jq '.topItems[].productName'
 ```
-"What did I order most in the last month?"
-"Compare my purchases from last 10 vs last 30 orders"
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ROHLIK_USERNAME` | Yes | Your Rohlik email |
+| `ROHLIK_PASSWORD` | Yes | Your Rohlik password |
+| `ROHLIK_BASE_URL` | No | Service URL (default: rohlik.cz) |
+| `ROHLIK_DEBUG` | No | Enable debug logging |
+
+### Supported Regions
+
+Set `ROHLIK_BASE_URL` for different countries:
+
+```bash
+# Czech Republic (default)
+export ROHLIK_BASE_URL="https://www.rohlik.cz"
+
+# Germany
+export ROHLIK_BASE_URL="https://www.knuspr.de"
+
+# Austria
+export ROHLIK_BASE_URL="https://www.gurkerl.at"
+
+# Hungary
+export ROHLIK_BASE_URL="https://www.kifli.hu"
+
+# Romania
+export ROHLIK_BASE_URL="https://www.sezamo.ro"
 ```
 
 ---
 
-## Need More Help?
+## Troubleshooting
 
-1. **Ask Claude**: "What can I do with Rohlik MCP?"
-2. **Technical issues**: See troubleshooting in the [main README](../README.md)
-3. **Report issues**: [GitHub Issues](https://github.com/tomaspavlin/rohlik-mcp/issues)
+### Login Failed
+
+1. Check credentials: `echo $ROHLIK_USERNAME`
+2. Enable debug: `export ROHLIK_DEBUG=true`
+3. Test on Rohlik website
+
+### No Order History
+
+Smart shopping features require past orders. Place at least one order first.
+
+### Slow Responses
+
+- Reduce `--orders` count
+- Reduce `--top` count
+- The API has rate limiting (~100ms between requests)
 
 ---
 
-## What's Next?
+## Need Help?
 
-Now that you understand the basics:
-
-1. **Try it!** Start with: "Show me breakfast suggestions"
-2. **Explore**: Ask "What can I do?" for more ideas
-3. **Customize**: Adjust parameters for your needs
-4. **Combine**: Use multiple features together
-5. **Share**: Help others discover Rohlik MCP!
-
----
-
-**Happy Shopping! 🛒**
-
-*Last updated: 2025-10-09*
+- [Main README](../README.md)
+- [GitHub Issues](https://github.com/tomaspavlin/rohlik-cli/issues)

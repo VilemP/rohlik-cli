@@ -1,79 +1,68 @@
-# Rohlik MCP Server - Project Context
+# Rohlik CLI - Project Context
 
 ## Overview
-This is a Model Context Protocol (MCP) server for Rohlik Group's online grocery services across Europe (Rohlik.cz, Knuspr.de, Gurkerl.at, Kifli.hu, Sezamo.ro).
+A Bun-powered CLI for Rohlik Group's grocery services across Europe. Fork of [rohlik-mcp](https://github.com/tomaspavlin/rohlik-mcp) converted from MCP server to CLI with SKILL.md for agentic use.
 
 ## Project Structure
 ```
 src/
-├── index.ts              # Main server entry point
-├── rohlik-api.ts         # API client with all HTTP calls
-├── types.ts              # TypeScript type definitions
-└── tools/                # Individual MCP tools
-    ├── search-products.ts
-    ├── cart-management.ts
-    ├── shopping-lists.ts
-    ├── account-data.ts
-    ├── order-history.ts
-    ├── order-detail.ts
-    ├── delivery-info.ts
-    ├── upcoming-orders.ts
-    ├── premium-info.ts
-    ├── delivery-slots.ts
-    ├── announcements.ts
-    ├── reusable-bags.ts
-    ├── frequent-items.ts      # Analyze purchase patterns
-    ├── meal-suggestions.ts    # Data-driven meal shopping
-    └── shopping-scenarios.ts  # User help guide
+├── cli.ts              # Main CLI entry point (Citty)
+├── rohlik-api.ts       # API client with all HTTP calls
+├── types.ts            # TypeScript type definitions
+├── output.ts           # Output formatting (human/JSON)
+└── commands/           # CLI commands
+    ├── utils.ts        # Shared utilities (getCredentials)
+    ├── search.ts       # Product search
+    ├── cart.ts         # Cart management (view/add/remove)
+    ├── orders.ts       # Order history & details
+    ├── delivery.ts     # Delivery info & slots
+    ├── account.ts      # Account, premium, announcements
+    ├── frequent.ts     # Frequency analysis
+    └── meals.ts        # Meal suggestions
 
 tests/
-├── README.md             # Comprehensive testing guide
-├── helpers.ts            # Mock data generators
-├── frequent-items.test.ts    # Unit tests for frequency analysis
-├── meal-suggestions.test.ts  # Unit tests for meal suggestions
-└── validate-api.ts       # Integration tests for API endpoints
+├── helpers.ts          # Mock data generators
+├── output.test.ts      # Output utility tests
+└── utils.test.ts       # Credential utility tests
+
+docs/
+└── README.md           # User guide
+
+SKILL.md                # Agent skill definition
 ```
 
 ## Environment Variables
 - `ROHLIK_USERNAME` - User email (required)
 - `ROHLIK_PASSWORD` - User password (required)
 - `ROHLIK_BASE_URL` - Service URL (optional, defaults to rohlik.cz)
-- `ROHLIK_DEBUG` - Enable debug logging (optional, set to "true")
+- `ROHLIK_DEBUG` - Enable debug logging (optional)
 
-## Available Tools (16 total)
-**Smart Shopping:** get_meal_suggestions, get_frequent_items, get_shopping_scenarios
-**Core Shopping:** search_products, add_to_cart, get_cart_content, remove_from_cart, get_shopping_list
-**Order Management:** get_account_data, get_order_history, get_order_detail, get_upcoming_orders
-**Delivery:** get_delivery_info, get_delivery_slots
-**Account:** get_premium_info, get_announcements, get_reusable_bags_info
+## CLI Commands
+```
+rohlik search <query>     # Search products
+rohlik cart               # View cart
+rohlik cart add <id>      # Add to cart
+rohlik cart remove <id>   # Remove from cart
+rohlik orders             # Order history
+rohlik order <id>         # Order details
+rohlik delivery           # Delivery info
+rohlik slots              # Delivery slots
+rohlik account            # Account info
+rohlik frequent           # Frequent items
+rohlik meals <type>       # Meal suggestions
+```
 
-## Key Implementation Details
-- Each tool is in separate file for modularity
-- API client handles authentication (login/logout per request)
-- All endpoints use reverse-engineered Rohlik Group APIs
-- Session management via cookies
-- Error handling with typed exceptions
-- Unit tests for data transformation logic (smart shopping features)
-- Integration tests for API validation
+All commands support `--json` for machine-readable output.
 
 ## Development Commands
-- `npm run build` - Compile TypeScript
-- `npm start` - Run production server
-- `npm run dev` - Development mode
-- `npm run inspect` - Test with MCP Inspector
-- `npm test` - Run unit tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Generate test coverage report
-- `npm run validate-api` - Integration tests for API endpoints
+- `bun run start` - Run CLI
+- `bun run dev` - Development mode with watch
+- `bun test` - Run tests
+- `bun test --watch` - Tests in watch mode
 
-## Testing
-- **Unit tests** - Test data transformation logic in smart shopping features (frequent-items, meal-suggestions)
-- **Integration tests** - Validate all API endpoints against real Rohlik API
-- **Test helpers** - Mock data generators for consistent test data
-- See `tests/README.md` for comprehensive testing documentation
-
-## Documentation Structure
-- `README.md` - Quick overview, installation, basic usage, troubleshooting
-- `docs/README.md` - Comprehensive user guide (500+ lines)
-- `tests/README.md` - Testing guide with examples and best practices
-- `CLAUDE.md` - This file, for Claude Code context
+## Key Implementation Details
+- Uses Citty for CLI framework
+- Bun runtime (native fetch, no node-fetch needed)
+- Dual output mode: human-friendly text or JSON (`--json` flag)
+- Authentication via environment variables
+- Session management via cookies in RohlikAPI class
