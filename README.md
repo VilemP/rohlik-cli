@@ -25,6 +25,9 @@ git clone https://github.com/tomaspavlin/rohlik-cli.git
 cd rohlik-cli
 bun install
 
+# Link globally to use 'rohlik' command anywhere
+bun link
+
 # Set credentials
 export ROHLIK_USERNAME="your-email@example.com"
 export ROHLIK_PASSWORD="your-password"
@@ -33,36 +36,38 @@ export ROHLIK_PASSWORD="your-password"
 export ROHLIK_BASE_URL="https://www.knuspr.de"
 ```
 
+> **Without global link:** If you skip `bun link`, run commands with `bun run rohlik` instead of `rohlik`.
+
 ## Usage
 
 ```bash
 # Search for products
-bun run rohlik search "milk"
-bun run rohlik search "bread" --limit 20 --favourites
+rohlik search "milk"
+rohlik search "bread" --limit 20 --favourites
 
 # Manage cart
-bun run rohlik cart                    # View cart
-bun run rohlik cart add 12345          # Add product by ID
-bun run rohlik cart add 12345 --quantity 3
-bun run rohlik cart remove ABC123      # Remove by cart item ID
+rohlik cart                    # View cart
+rohlik cart add 12345          # Add product by ID
+rohlik cart add 12345 --quantity 3
+rohlik cart remove ABC123      # Remove by cart item ID
 
 # View orders
-bun run rohlik orders                  # Order history
-bun run rohlik orders --limit 20
-bun run rohlik order 12345             # Order details
+rohlik orders                  # Order history
+rohlik orders --limit 20
+rohlik order 12345             # Order details
 
 # Delivery
-bun run rohlik delivery                # Delivery info + upcoming orders
-bun run rohlik slots                   # Available delivery slots
+rohlik delivery                # Delivery info + upcoming orders
+rohlik slots                   # Available delivery slots
 
 # Account
-bun run rohlik account                 # Premium status, bags, announcements
+rohlik account                 # Premium status, bags, announcements
 
 # Smart shopping
-bun run rohlik frequent                # Most purchased items
-bun run rohlik frequent --orders 10 --top 20 --categories
-bun run rohlik meals breakfast         # Meal suggestions
-bun run rohlik meals dinner --count 15
+rohlik frequent                # Most purchased items
+rohlik frequent --orders 10 --top 20 --categories
+rohlik meals breakfast         # Meal suggestions
+rohlik meals dinner --count 15
 ```
 
 ### JSON Output
@@ -70,9 +75,9 @@ bun run rohlik meals dinner --count 15
 Add `--json` to any command for machine-readable output:
 
 ```bash
-bun run rohlik search "milk" --json
-bun run rohlik cart --json
-bun run rohlik frequent --json
+rohlik search "milk" --json
+rohlik cart --json
+rohlik frequent --json
 ```
 
 ## Commands
