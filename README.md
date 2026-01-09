@@ -9,6 +9,7 @@ CLI for Rohlik Group grocery services - search products, manage cart, view order
 > This CLI uses reverse-engineered Rohlik APIs. For personal use only.
 
 **Supported Services:**
+
 - 🇨🇿 [Rohlik.cz](https://www.rohlik.cz) - Czech Republic
 - 🇩🇪 [Knuspr.de](https://www.knuspr.de) - Germany
 - 🇦🇹 [Gurkerl.at](https://www.gurkerl.at) - Austria
@@ -21,7 +22,7 @@ Requires [Bun](https://bun.sh) runtime.
 
 ```bash
 # Clone and install
-git clone https://github.com/tomaspavlin/rohlik-cli.git
+git clone https://github.com/timolins/rohlik-cli.git
 cd rohlik-cli
 bun install
 
@@ -82,28 +83,28 @@ rohlik frequent --json
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `search <query>` | Search for products |
-| `cart` | View cart contents |
-| `cart add <id>` | Add product to cart |
-| `cart remove <id>` | Remove item from cart |
-| `orders` | View order history |
-| `order <id>` | View order details |
-| `delivery` | View delivery info |
-| `slots` | View delivery slots |
-| `account` | View account info |
-| `frequent` | View frequently purchased items |
-| `meals <type>` | Get meal suggestions (breakfast, lunch, dinner, snack, baking, drinks, healthy) |
+| Command            | Description                                                                     |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `search <query>`   | Search for products                                                             |
+| `cart`             | View cart contents                                                              |
+| `cart add <id>`    | Add product to cart                                                             |
+| `cart remove <id>` | Remove item from cart                                                           |
+| `orders`           | View order history                                                              |
+| `order <id>`       | View order details                                                              |
+| `delivery`         | View delivery info                                                              |
+| `slots`            | View delivery slots                                                             |
+| `account`          | View account info                                                               |
+| `frequent`         | View frequently purchased items                                                 |
+| `meals <type>`     | Get meal suggestions (breakfast, lunch, dinner, snack, baking, drinks, healthy) |
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ROHLIK_USERNAME` | Yes | Your Rohlik email |
-| `ROHLIK_PASSWORD` | Yes | Your Rohlik password |
-| `ROHLIK_BASE_URL` | No | Service URL (default: https://www.rohlik.cz) |
-| `ROHLIK_DEBUG` | No | Enable debug logging |
+| Variable          | Required | Description                                  |
+| ----------------- | -------- | -------------------------------------------- |
+| `ROHLIK_USERNAME` | Yes      | Your Rohlik email                            |
+| `ROHLIK_PASSWORD` | Yes      | Your Rohlik password                         |
+| `ROHLIK_BASE_URL` | No       | Service URL (default: https://www.rohlik.cz) |
+| `ROHLIK_DEBUG`    | No       | Enable debug logging                         |
 
 ## Development
 
@@ -121,14 +122,17 @@ bun test --watch
 ## Troubleshooting
 
 ### Login failed
+
 1. Check credentials in environment variables
 2. Enable debug: `export ROHLIK_DEBUG=true`
 3. Verify account works on Rohlik website
 
 ### No order history
+
 Smart shopping features (`frequent`, `meals`) require past orders.
 
 ### Slow responses
+
 - Reduce `--orders` count for smart features
 - API has rate limiting (~100ms between requests)
 
