@@ -64,6 +64,10 @@ rohlik slots                   # Available delivery slots
 # Account
 rohlik account                 # Premium status, bags, announcements
 
+# Product detail (nutrition, ingredients, allergens)
+rohlik product 1462359         # Human-readable detail
+rohlik product 1462359 --json  # JSON with full nutrition data
+
 # Smart shopping
 rohlik frequent                # Most purchased items
 rohlik frequent --orders 10 --top 20 --categories
@@ -94,6 +98,7 @@ rohlik frequent --json
 | `delivery`         | View delivery info                                                              |
 | `slots`            | View delivery slots                                                             |
 | `account`          | View account info                                                               |
+| `product <id>`     | View product detail with nutrition, ingredients, allergens                       |
 | `frequent`         | View frequently purchased items                                                 |
 | `meals <type>`     | Get meal suggestions (breakfast, lunch, dinner, snack, baking, drinks, healthy) |
 

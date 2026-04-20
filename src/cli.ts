@@ -7,6 +7,7 @@ import { deliveryCommand, slotsCommand } from './commands/delivery.js';
 import { accountCommand } from './commands/account.js';
 import { frequentCommand } from './commands/frequent.js';
 import { mealsCommand } from './commands/meals.js';
+import { productCommand } from './commands/product.js';
 
 const main = defineCommand({
   meta: {
@@ -23,7 +24,8 @@ const main = defineCommand({
     slots: slotsCommand,
     account: accountCommand,
     frequent: frequentCommand,
-    meals: mealsCommand
+    meals: mealsCommand,
+    product: productCommand
   }
 });
 
