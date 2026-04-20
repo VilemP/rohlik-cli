@@ -141,8 +141,10 @@ function parsePricePerUnit(html: string): string | null {
 }
 
 function parseOrigin(html: string): string | null {
-  const match = html.match(/Země původu<\/[^>]+>\s*<[^>]+>([^<]+)/i);
-  return match ? match[1].trim() : null;
+  const match = html.match(/Země původu[^<]*<\/h3>\s*<span>(.*?)<\/span>\s*<br>/);
+  if (!match) return null;
+  const countries = [...match[1].matchAll(/class="categoryName">([^<]+)/g)].map(m => m[1].trim());
+  return countries.length > 0 ? countries.join(', ') : null;
 }
 
 async function fetchProductPage(productId: number): Promise<string> {
