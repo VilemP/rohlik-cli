@@ -25,6 +25,7 @@ interface ProductDetail {
   price: string | null;
   currency: string | null;
   pricePerUnit: string | null;
+  availability: 'InStock' | 'OutOfStock' | 'unknown';
   nutrition: Nutrition | null;
   ingredients: string[] | null;
   allergens: string[] | null;
@@ -107,7 +108,7 @@ function parseAllergens(html: string): string[] | null {
   return items.length > 0 ? items : null;
 }
 
-function parseJsonLd(html: string): { name: string; brand: string | null; price: string | null; currency: string | null; categories: string[] | null } | null {
+function parseJsonLd(html: string): { name: string; brand: string | null; price: string | null; currency: string | null; availability: 'InStock' | 'OutOfStock' | 'unknown'; categories: string[] | null } | null {
   const match = html.match(/<script type="application\/ld\+json">({"@context":"https:\/\/schema\.org","@type":"Product".*?})<\/script>/);
   if (!match) return null;
 
@@ -118,11 +119,18 @@ function parseJsonLd(html: string): { name: string; brand: string | null; price:
       ? categoryStr.split(' > ').map((c: string) => c.trim())
       : null;
 
+    const availabilityRaw: string | undefined = data.offers?.availability;
+    const availability: 'InStock' | 'OutOfStock' | 'unknown' =
+      availabilityRaw?.endsWith('InStock') ? 'InStock'
+      : availabilityRaw?.endsWith('OutOfStock') ? 'OutOfStock'
+      : 'unknown';
+
     return {
       name: data.name || '',
       brand: data.brand?.name || null,
       price: data.offers?.price?.toString() || null,
       currency: data.offers?.priceCurrency || null,
+      availability,
       categories,
     };
   } catch {
@@ -176,6 +184,12 @@ function formatHumanOutput(product: ProductDetail): string {
   if (product.amount) lines.push(`  ${c.label('Množství:')} ${product.amount}`);
   if (product.price) lines.push(`  ${c.label('Cena:')} ${c.price(`${product.price} ${product.currency || 'Kč'}`)}`);
   if (product.pricePerUnit) lines.push(`  ${c.label('Cena za jednotku:')} ${product.pricePerUnit}`);
+  const availabilityLabel = product.availability === 'InStock'
+    ? c.success('skladem')
+    : product.availability === 'OutOfStock'
+      ? c.warn('vyprodáno')
+      : c.dim('neznámé');
+  lines.push(`  ${c.label('Dostupnost:')} ${availabilityLabel}`);
   lines.push(`  ${c.dim(`ID: ${product.id}`)}`);
 
   if (product.nutrition) {
@@ -258,6 +272,7 @@ export const productCommand = defineCommand({
         price: jsonLd?.price || null,
         currency: jsonLd?.currency || null,
         pricePerUnit,
+        availability: jsonLd?.availability ?? 'unknown',
         nutrition,
         ingredients,
         allergens,

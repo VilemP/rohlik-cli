@@ -1,4 +1,4 @@
-import { Product, SearchResult, CartContent, RohlikCredentials, RohlikAPIResponse, AccountData } from './types.js';
+import type { AccountData, AddToCartFailure, AddToCartResult, CartContent, Product, RohlikAPIResponse, RohlikCredentials, SearchResult } from './types.js';
 
 const BASE_URL = process.env.ROHLIK_BASE_URL || 'https://www.rohlik.cz';
 
@@ -37,32 +37,56 @@ export class RohlikAPI {
     url: string,
     options: Partial<Parameters<typeof fetch>[1]> = {}
   ): Promise<RohlikAPIResponse<T>> {
-    // Apply rate limiting to prevent HTTP 429 errors
-    await this.rateLimit();
+    const maxRetries = 5;
+    let attempt = 0;
+    let lastError: unknown;
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      ...(this.sessionCookies && { Cookie: this.sessionCookies }),
-      ...(options.headers as Record<string, string> || {})
-    };
+    while (attempt <= maxRetries) {
+      // Apply rate limiting to prevent HTTP 429 errors
+      await this.rateLimit();
 
-    const response = await fetch(`${BASE_URL}${url}`, {
-      ...options,
-      headers
-    });
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        ...(this.sessionCookies && { Cookie: this.sessionCookies }),
+        ...(options.headers as Record<string, string> || {})
+      };
 
-    // Store cookies for session management
-    const setCookieHeader = response.headers.get('set-cookie');
-    if (setCookieHeader) {
-      this.sessionCookies = setCookieHeader;
+      const response = await fetch(`${BASE_URL}${url}`, {
+        ...options,
+        headers
+      });
+
+      // Store cookies for session management
+      const setCookieHeader = response.headers.get('set-cookie');
+      if (setCookieHeader) {
+        this.sessionCookies = setCookieHeader;
+      }
+
+      if (response.status === 429 && attempt < maxRetries) {
+        // Honor Retry-After header if present, otherwise exponential backoff
+        const retryAfter = response.headers.get('retry-after');
+        const backoffMs = retryAfter
+          ? parseInt(retryAfter, 10) * 1000
+          : Math.min(30_000, 2_000 * (2 ** attempt));
+        const debug = process.env.ROHLIK_DEBUG === 'true';
+        if (debug) {
+          console.error(`[ROHLIK_DEBUG] HTTP 429 on ${url}, retrying in ${backoffMs}ms (attempt ${attempt + 1}/${maxRetries})`);
+        }
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        attempt += 1;
+        lastError = new RohlikAPIError(`HTTP 429: ${response.statusText}`, 429);
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new RohlikAPIError(`HTTP ${response.status}: ${response.statusText}`, response.status);
+      }
+
+      return await response.json() as RohlikAPIResponse<T>;
     }
 
-    if (!response.ok) {
-      throw new RohlikAPIError(`HTTP ${response.status}: ${response.statusText}`, response.status);
-    }
-
-    return await response.json() as RohlikAPIResponse<T>;
+    throw lastError ?? new RohlikAPIError('Exceeded retry budget for HTTP 429');
   }
 
   async login(): Promise<void> {
@@ -194,11 +218,12 @@ export class RohlikAPI {
     }
   }
 
-  async addToCart(products: Product[]): Promise<number[]> {
+  async addToCart(products: Product[]): Promise<AddToCartResult> {
     await this.login();
 
     try {
-      const addedProducts: number[] = [];
+      const addedIds: number[] = [];
+      const failures: AddToCartFailure[] = [];
 
       for (const product of products) {
         try {
@@ -215,15 +240,48 @@ export class RohlikAPI {
             body: JSON.stringify(payload)
           });
 
-          addedProducts.push(product.product_id);
+          addedIds.push(product.product_id);
         } catch (error) {
-          console.error(`Failed to add product ${product.product_id}:`, error);
+          const reason = await this.classifyAddFailure(product.product_id, error);
+          failures.push(reason);
+          console.error(`Failed to add product ${product.product_id} (${reason.reason}):`, reason.message ?? '');
         }
       }
 
-      return addedProducts;
+      return { addedIds, failures };
     } finally {
       await this.logout();
+    }
+  }
+
+  private async classifyAddFailure(productId: number, error: unknown): Promise<AddToCartFailure> {
+    const message = error instanceof Error ? error.message : String(error);
+    const status = error instanceof RohlikAPIError ? error.status : undefined;
+
+    const availability = await this.fetchAvailability(productId);
+    if (availability === 'OutOfStock') {
+      return { productId, reason: 'out-of-stock', message: 'Produkt vyprodán' };
+    }
+
+    if (status === 429) {
+      return { productId, reason: 'rate-limited', message };
+    }
+
+    return { productId, reason: 'error', message };
+  }
+
+  private async fetchAvailability(productId: number): Promise<'InStock' | 'OutOfStock' | 'unknown'> {
+    try {
+      const response = await fetch(`${BASE_URL}/${productId}`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
+        redirect: 'follow'
+      });
+      if (!response.ok) return 'unknown';
+      const html = await response.text();
+      const match = html.match(/"availability":"https:\/\/schema\.org\/(InStock|OutOfStock)"/);
+      return match ? (match[1] as 'InStock' | 'OutOfStock') : 'unknown';
+    } catch {
+      return 'unknown';
     }
   }
 

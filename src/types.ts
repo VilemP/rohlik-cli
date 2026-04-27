@@ -35,6 +35,19 @@ export type SearchResult = z.infer<typeof SearchResultSchema>;
 export type CartItem = z.infer<typeof CartItemSchema>;
 export type CartContent = z.infer<typeof CartContentSchema>;
 
+export type AddToCartFailureReason = 'rate-limited' | 'out-of-stock' | 'error';
+
+export interface AddToCartFailure {
+  productId: number;
+  reason: AddToCartFailureReason;
+  message?: string;
+}
+
+export interface AddToCartResult {
+  addedIds: number[];
+  failures: AddToCartFailure[];
+}
+
 export interface RohlikCredentials {
   username: string;
   password: string;
